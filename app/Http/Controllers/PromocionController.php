@@ -26,7 +26,6 @@ class PromocionController extends Controller
             if (isset($promos[0])) {
                 foreach ($promos as $promo) {
                     if (isset($promo->id)) {
-                        // Eliminar todas las imágenes
                         $this->deleteAllImages($promo);
                         $promo->delete();
                     }
@@ -101,104 +100,6 @@ class PromocionController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'error'], 304);
         }
-    }
-
-    /**
-     * Subir y comprimir imagen para el home usando Intervention Image
-     */
-    public function imagenhome(Request $request, $id)
-    {
-        $allowed = ['gif', 'png', 'jpg', 'jpeg', 'bmp', 'webp'];
-        $status = 200;
-        $success = 'success';
-
-        $promo = Promocion::find($id);
-        if (!$promo) {
-            return response()->json(['error' => 'Promoción no encontrada'], 404);
-        }
-
-        // Crear instancia de ImageManager
-        $manager = new ImageManager(new Driver());
-
-        foreach ($request->files as $file) {
-            $name = $file->getClientOriginalName();
-            $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-
-            if (in_array($ext, $allowed)) {
-                // Eliminar imagen anterior si existe
-                if ($promo->imagen_home) {
-                    $this->deleteHomeImage($promo->imagen_home);
-                }
-
-                $rand = rand(0, 1000);
-                $newName = 'primghom-' . time() . '-' . $rand . '_' . $id . '.' . $ext;
-                $uploadPath = public_path('/img/promociones/');
-                $filePath = $uploadPath . $newName;
-
-                // Mover el archivo original
-                $file->move($uploadPath, $newName);
-
-                try {
-                    // Leer la imagen
-                    $image = $manager->read($filePath);
-
-                    // Redimensionar para el home (870x500)
-                    $image->cover(870, 500);
-                    $image->save($filePath, 80);
-
-                    // Guardar en la base de datos
-                    $promo->imagen_home = $newName;
-                    $promo->save();
-
-                    $success = 'success';
-
-                } catch (\Exception $e) {
-                    // Si falla, eliminar el archivo subido
-                    if (file_exists($filePath)) {
-                        @unlink($filePath);
-                    }
-                    return response()->json([
-                        'error' => 'Error al procesar la imagen: ' . $e->getMessage()
-                    ], 500);
-                }
-
-            } else {
-                return response()->json([
-                    'error' => 'Formato de imagen no permitido. Use: ' . implode(', ', $allowed)
-                ], 300);
-            }
-        }
-
-        $view = view('dashboard.partials.promo_imagen_home', compact('promo'))->render();
-        return response()->json([
-            $success => $success,
-            'status' => $status,
-            'view' => $view
-        ], $status);
-    }
-
-    public function update(Request $request)
-    {
-        $id = $request->id;
-        $promo = Promocion::find($id);
-
-        if (!$promo) {
-            return response()->json(['error' => 'Promoción no encontrada'], 404);
-        }
-
-        $field = $request->n;
-        $value = $request->v;
-
-        // Manejar campos especiales
-        if ($field == 'destacada') {
-            $promo->destacada_at = Carbon::now();
-        }
-
-        $promo->$field = $value;
-        $promo->pendiente = 0;
-        $promo->save();
-
-        return response()->json(['success' => true]);
     }
 
     /**
@@ -322,6 +223,122 @@ class PromocionController extends Controller
                 'error' => 'Error al procesar la imagen: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Subir y comprimir imagen para el home usando Intervention Image
+     */
+    public function imagenhome(Request $request, $id)
+    {
+        $allowed = ['gif', 'png', 'jpg', 'jpeg', 'bmp', 'webp'];
+        $status = 200;
+        $success = 'success';
+
+        $promo = Promocion::find($id);
+        if (!$promo) {
+            return response()->json(['error' => 'Promoción no encontrada'], 404);
+        }
+
+        // Verificar si hay archivo
+        if (!$request->hasFile('file')) {
+            return response()->json(['error' => 'No se ha seleccionado ninguna imagen'], 400);
+        }
+
+        $file = $request->file('file');
+        $ext = strtolower($file->getClientOriginalExtension());
+
+        // Validar extensión
+        if (!in_array($ext, $allowed)) {
+            return response()->json([
+                'error' => 'Formato de imagen no permitido. Use: ' . implode(', ', $allowed)
+            ], 300);
+        }
+
+        // Validar tamaño máximo (5MB)
+        if ($file->getSize() > 5 * 1024 * 1024) {
+            return response()->json(['error' => 'La imagen no debe superar los 5MB'], 400);
+        }
+
+        try {
+            // Crear instancia de ImageManager
+            $manager = new ImageManager(new Driver());
+
+            // Eliminar imagen anterior si existe
+            if ($promo->imagen_home) {
+                $this->deleteHomeImage($promo->imagen_home);
+            }
+
+            // Generar nombre único
+            $rand = rand(1000, 9999);
+            $newName = 'primghom-' . time() . '-' . $rand . '_' . $id . '.' . $ext;
+            $uploadPath = public_path('/img/promociones/');
+
+            // Asegurar que el directorio existe
+            if (!file_exists($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+
+            // Mover el archivo original
+            $filePath = $uploadPath . $newName;
+            $file->move($uploadPath, $newName);
+
+            // Leer la imagen
+            $image = $manager->read($filePath);
+
+            // Redimensionar para el home (870x500)
+            $image->cover(870, 500);
+            $image->save($filePath, 80);
+
+            // Guardar en la base de datos
+            $promo->imagen_home = $newName;
+            $promo->save();
+
+            // Generar vista actualizada
+            $view = view('dashboard.partials.promo_imagen_home', compact('promo'))->render();
+
+            return response()->json([
+                'success' => 'success',
+                'status' => 200,
+                'view' => $view,
+                'message' => 'Imagen subida correctamente'
+            ], 200);
+
+        } catch (\Exception $e) {
+            // Si falla, eliminar el archivo subido
+            if (isset($filePath) && file_exists($filePath)) {
+                @unlink($filePath);
+            }
+
+            \Log::error('Error al subir imagen home para promoción ' . $id . ': ' . $e->getMessage());
+
+            return response()->json([
+                'error' => 'Error al procesar la imagen: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function update(Request $request)
+    {
+        $id = $request->id;
+        $promo = Promocion::find($id);
+
+        if (!$promo) {
+            return response()->json(['error' => 'Promoción no encontrada'], 404);
+        }
+
+        $field = $request->n;
+        $value = $request->v;
+
+        // Manejar campos especiales
+        if ($field == 'destacada') {
+            $promo->destacada_at = Carbon::now();
+        }
+
+        $promo->$field = $value;
+        $promo->pendiente = 0;
+        $promo->save();
+
+        return response()->json(['success' => true]);
     }
 
     public function open(Request $request, $id)
