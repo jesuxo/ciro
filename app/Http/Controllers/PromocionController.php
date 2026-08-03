@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Promocion;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\Facades\Image;
 
 class PromocionController extends Controller
 {
@@ -135,9 +134,6 @@ class PromocionController extends Controller
         }
 
         try {
-            // Crear instancia de ImageManager
-            $manager = new ImageManager(new Driver());
-
             // Eliminar imagen anterior si existe
             if ($promo->imagen) {
                 $this->deleteImageFiles($promo->imagen);
@@ -157,31 +153,30 @@ class PromocionController extends Controller
             $filePath = $uploadPath . $newName;
             $file->move($uploadPath, $newName);
 
-            // Usar ImageManager en lugar de la fachada Image
-            $image = $manager->read($filePath);
+            // Usar Image::make() para Intervention Image 2.x
+            $image = Image::make($filePath);
 
             // Obtener dimensiones originales
             $originalWidth = $image->width();
             $originalHeight = $image->height();
 
             // 1. Versión para thumbnail (270x320)
-            $thumbnail = clone $image;
             if ($originalWidth > 270 || $originalHeight > 320) {
-                $thumbnail->cover(270, 320);
+                $image->fit(270, 320);
             }
-            $thumbnail->save($uploadPath . 'th' . $newName, 85);
+            $image->save($uploadPath . 'th' . $newName, 85);
 
             // 2. Versión para grid (200x200)
-            $grid = clone $image;
+            $grid = Image::make($filePath);
             if ($originalWidth > 200 || $originalHeight > 200) {
-                $grid->cover(200, 200);
+                $grid->fit(200, 200);
             }
             $grid->save($uploadPath . 'ogc' . $newName, 80);
 
             // 3. Versión optimizada para web (480x853)
-            $web = clone $image;
+            $web = Image::make($filePath);
             if ($originalWidth > 480 || $originalHeight > 853) {
-                $web->cover(480, 853);
+                $web->fit(480, 853);
             }
             $web->save($filePath, 75);
 
@@ -256,9 +251,6 @@ class PromocionController extends Controller
         }
 
         try {
-            // Crear instancia de ImageManager
-            $manager = new ImageManager(new Driver());
-
             // Eliminar imagen anterior si existe
             if ($promo->imagen_home) {
                 $this->deleteHomeImage($promo->imagen_home);
@@ -278,11 +270,11 @@ class PromocionController extends Controller
             $filePath = $uploadPath . $newName;
             $file->move($uploadPath, $newName);
 
-            // Usar ImageManager en lugar de la fachada Image
-            $image = $manager->read($filePath);
+            // Usar Image::make() para Intervention Image 2.x
+            $image = Image::make($filePath);
 
             // Redimensionar para el home (870x500)
-            $image->cover(870, 500);
+            $image->fit(870, 500);
             $image->save($filePath, 80);
 
             // Guardar en la base de datos
@@ -474,30 +466,27 @@ class PromocionController extends Controller
         $compressed = 0;
         $errors = [];
 
-        // Crear instancia de ImageManager
-        $manager = new ImageManager(new Driver());
-
         foreach ($promos as $promo) {
             try {
                 $basePath = public_path('/img/promociones/');
                 $imagePath = $basePath . $promo->imagen;
 
                 if (file_exists($imagePath)) {
-                    // Usar ImageManager en lugar de la fachada Image
-                    $image = $manager->read($imagePath);
+                    // Usar Image::make() para Intervention Image 2.x
+                    $image = Image::make($imagePath);
                     $image->save($imagePath, 75);
 
                     // Comprimir thumbnail
                     $thumbPath = $basePath . 'th' . $promo->imagen;
                     if (file_exists($thumbPath)) {
-                        $thumb = $manager->read($thumbPath);
+                        $thumb = Image::make($thumbPath);
                         $thumb->save($thumbPath, 85);
                     }
 
                     // Comprimir grid
                     $gridPath = $basePath . 'ogc' . $promo->imagen;
                     if (file_exists($gridPath)) {
-                        $grid = $manager->read($gridPath);
+                        $grid = Image::make($gridPath);
                         $grid->save($gridPath, 80);
                     }
 
@@ -508,7 +497,7 @@ class PromocionController extends Controller
                 if ($promo->imagen_home) {
                     $homePath = $basePath . $promo->imagen_home;
                     if (file_exists($homePath)) {
-                        $home = $manager->read($homePath);
+                        $home = Image::make($homePath);
                         $home->save($homePath, 80);
                     }
                 }
