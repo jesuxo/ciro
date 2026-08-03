@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Promocion;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
@@ -103,11 +102,12 @@ class PromocionController extends Controller
         }
     }
 
+    /**
+     * Subir y comprimir imagen principal usando Intervention Image
+     */
     public function imagen(Request $request, $id)
     {
         $allowed = ['gif', 'png', 'jpg', 'jpeg', 'bmp', 'webp'];
-        $status = 200;
-        $success = 'success';
 
         $promo = Promocion::find($id);
         if (!$promo) {
@@ -135,6 +135,9 @@ class PromocionController extends Controller
         }
 
         try {
+            // Crear instancia de ImageManager
+            $manager = new ImageManager(new Driver());
+
             // Eliminar imagen anterior si existe
             if ($promo->imagen) {
                 $this->deleteImageFiles($promo->imagen);
@@ -154,8 +157,8 @@ class PromocionController extends Controller
             $filePath = $uploadPath . $newName;
             $file->move($uploadPath, $newName);
 
-            // 🔥 INTERVENTION IMAGE 2.x - Usar make() en lugar de read()
-            $image = Image::make($filePath);
+            // Usar ImageManager en lugar de la fachada Image
+            $image = $manager->read($filePath);
 
             // Obtener dimensiones originales
             $originalWidth = $image->width();
@@ -164,27 +167,21 @@ class PromocionController extends Controller
             // 1. Versión para thumbnail (270x320)
             $thumbnail = clone $image;
             if ($originalWidth > 270 || $originalHeight > 320) {
-                $thumbnail->fit(270, 320, function ($constraint) {
-                    $constraint->upsize();
-                });
+                $thumbnail->cover(270, 320);
             }
             $thumbnail->save($uploadPath . 'th' . $newName, 85);
 
             // 2. Versión para grid (200x200)
             $grid = clone $image;
             if ($originalWidth > 200 || $originalHeight > 200) {
-                $grid->fit(200, 200, function ($constraint) {
-                    $constraint->upsize();
-                });
+                $grid->cover(200, 200);
             }
             $grid->save($uploadPath . 'ogc' . $newName, 80);
 
             // 3. Versión optimizada para web (480x853)
             $web = clone $image;
             if ($originalWidth > 480 || $originalHeight > 853) {
-                $web->fit(480, 853, function ($constraint) {
-                    $constraint->upsize();
-                });
+                $web->cover(480, 853);
             }
             $web->save($filePath, 75);
 
@@ -232,8 +229,6 @@ class PromocionController extends Controller
     public function imagenhome(Request $request, $id)
     {
         $allowed = ['gif', 'png', 'jpg', 'jpeg', 'bmp', 'webp'];
-        $status = 200;
-        $success = 'success';
 
         $promo = Promocion::find($id);
         if (!$promo) {
@@ -261,6 +256,9 @@ class PromocionController extends Controller
         }
 
         try {
+            // Crear instancia de ImageManager
+            $manager = new ImageManager(new Driver());
+
             // Eliminar imagen anterior si existe
             if ($promo->imagen_home) {
                 $this->deleteHomeImage($promo->imagen_home);
@@ -280,13 +278,11 @@ class PromocionController extends Controller
             $filePath = $uploadPath . $newName;
             $file->move($uploadPath, $newName);
 
-            // 🔥 INTERVENTION IMAGE 2.x - Usar make() en lugar de read()
-            $image = \Image::make($filePath);
+            // Usar ImageManager en lugar de la fachada Image
+            $image = $manager->read($filePath);
 
             // Redimensionar para el home (870x500)
-            $image->fit(870, 500, function ($constraint) {
-                $constraint->upsize();
-            });
+            $image->cover(870, 500);
             $image->save($filePath, 80);
 
             // Guardar en la base de datos
@@ -478,27 +474,30 @@ class PromocionController extends Controller
         $compressed = 0;
         $errors = [];
 
+        // Crear instancia de ImageManager
+        $manager = new ImageManager(new Driver());
+
         foreach ($promos as $promo) {
             try {
                 $basePath = public_path('/img/promociones/');
                 $imagePath = $basePath . $promo->imagen;
 
                 if (file_exists($imagePath)) {
-                    // 🔥 INTERVENTION IMAGE 2.x - Usar make()
-                    $image = \Image::make($imagePath);
+                    // Usar ImageManager en lugar de la fachada Image
+                    $image = $manager->read($imagePath);
                     $image->save($imagePath, 75);
 
                     // Comprimir thumbnail
                     $thumbPath = $basePath . 'th' . $promo->imagen;
                     if (file_exists($thumbPath)) {
-                        $thumb = \Image::make($thumbPath);
+                        $thumb = $manager->read($thumbPath);
                         $thumb->save($thumbPath, 85);
                     }
 
                     // Comprimir grid
                     $gridPath = $basePath . 'ogc' . $promo->imagen;
                     if (file_exists($gridPath)) {
-                        $grid = \Image::make($gridPath);
+                        $grid = $manager->read($gridPath);
                         $grid->save($gridPath, 80);
                     }
 
@@ -509,7 +508,7 @@ class PromocionController extends Controller
                 if ($promo->imagen_home) {
                     $homePath = $basePath . $promo->imagen_home;
                     if (file_exists($homePath)) {
-                        $home = \Image::make($homePath);
+                        $home = $manager->read($homePath);
                         $home->save($homePath, 80);
                     }
                 }
