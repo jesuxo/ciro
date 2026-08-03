@@ -201,6 +201,129 @@ class PromocionController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * Subir y comprimir imagen principal usando Intervention Image
+     */
+    public function imagen(Request $request, $id)
+    {
+        $allowed = ['gif', 'png', 'jpg', 'jpeg', 'bmp', 'webp'];
+        $status = 200;
+        $success = 'success';
+
+        $promo = Promocion::find($id);
+        if (!$promo) {
+            return response()->json(['error' => 'Promoción no encontrada'], 404);
+        }
+
+        // Verificar si hay archivo
+        if (!$request->hasFile('file')) {
+            return response()->json(['error' => 'No se ha seleccionado ninguna imagen'], 400);
+        }
+
+        $file = $request->file('file');
+        $ext = strtolower($file->getClientOriginalExtension());
+
+        // Validar extensión
+        if (!in_array($ext, $allowed)) {
+            return response()->json([
+                'error' => 'Formato de imagen no permitido. Use: ' . implode(', ', $allowed)
+            ], 300);
+        }
+
+        // Validar tamaño máximo (5MB)
+        if ($file->getSize() > 5 * 1024 * 1024) {
+            return response()->json(['error' => 'La imagen no debe superar los 5MB'], 400);
+        }
+
+        try {
+            // Crear instancia de ImageManager
+            $manager = new ImageManager(new Driver());
+
+            // Eliminar imagen anterior si existe
+            if ($promo->imagen) {
+                $this->deleteImageFiles($promo->imagen);
+            }
+
+            // Generar nombre único
+            $rand = rand(1000, 9999);
+            $newName = 'promoimg-' . time() . '-' . $rand . '_' . $id . '.' . $ext;
+            $uploadPath = public_path('/img/promociones/');
+
+            // Asegurar que el directorio existe
+            if (!file_exists($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+
+            // Mover el archivo original
+            $filePath = $uploadPath . $newName;
+            $file->move($uploadPath, $newName);
+
+            // Leer la imagen
+            $image = $manager->read($filePath);
+
+            // Obtener dimensiones originales
+            $originalWidth = $image->width();
+            $originalHeight = $image->height();
+
+            // 1. Versión para thumbnail (270x320) - Mantener calidad
+            $thumbnail = clone $image;
+            if ($originalWidth > 270 || $originalHeight > 320) {
+                $thumbnail->cover(270, 320);
+            }
+            $thumbnail->save($uploadPath . 'th' . $newName, 85);
+
+            // 2. Versión para grid (200x200)
+            $grid = clone $image;
+            if ($originalWidth > 200 || $originalHeight > 200) {
+                $grid->cover(200, 200);
+            }
+            $grid->save($uploadPath . 'ogc' . $newName, 80);
+
+            // 3. Versión optimizada para web (480x853) - Comprimir más
+            $web = clone $image;
+            if ($originalWidth > 480 || $originalHeight > 853) {
+                $web->cover(480, 853);
+            }
+            $web->save($filePath, 75);
+
+            // Guardar en la base de datos
+            $promo->imagen = $newName;
+            $promo->pendiente = 0;
+            $promo->save();
+
+            // Generar vista actualizada
+            $view = view('dashboard.partials.promo_imagen', compact('promo'))->render();
+
+            return response()->json([
+                'success' => 'success',
+                'status' => 200,
+                'view' => $view,
+                'message' => 'Imagen subida correctamente'
+            ], 200);
+
+        } catch (\Exception $e) {
+            // Si falla, eliminar el archivo subido
+            if (isset($filePath) && file_exists($filePath)) {
+                @unlink($filePath);
+            }
+            // Eliminar thumbnails si existen
+            if (isset($uploadPath) && isset($newName)) {
+                if (file_exists($uploadPath . 'th' . $newName)) {
+                    @unlink($uploadPath . 'th' . $newName);
+                }
+                if (file_exists($uploadPath . 'ogc' . $newName)) {
+                    @unlink($uploadPath . 'ogc' . $newName);
+                }
+            }
+
+            \Log::error('Error al subir imagen para promoción ' . $id . ': ' . $e->getMessage());
+
+            return response()->json([
+                'error' => 'Error al procesar la imagen: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function open(Request $request, $id)
     {
         $promo = Promocion::find($id);
