@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Promocion;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
@@ -154,7 +155,7 @@ class PromocionController extends Controller
             $file->move($uploadPath, $newName);
 
             // 🔥 INTERVENTION IMAGE 2.x - Usar make() en lugar de read()
-            $image = \Image::make($filePath);
+            $image = Image::make($filePath);
 
             // Obtener dimensiones originales
             $originalWidth = $image->width();
