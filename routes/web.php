@@ -90,7 +90,7 @@ Route::middleware(['check.admin'])->group(function () {
 
     // Index de promociones (AJAX)
     Route::get('/promos/index', [PromocionController::class, 'index'])->name('promos.index');
-
+    Route::put('/promo/update', [PromocionController::class, 'putUpdate'])->name('promo.put.update');
     // CRUD
     Route::resource('promos', \App\Http\Controllers\PromocionController::class);
 
