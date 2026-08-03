@@ -1,5 +1,4 @@
 <div class="card">
-
     <div class="card-body">
         <div class="row">
             <!-- Nombre -->
@@ -109,28 +108,37 @@
                             <!-- Imagen principal -->
                             <div class="col-md-6">
                                 <label class="form-label">Imagen principal</label>
-                                <div class="border rounded p-3 text-center" style="min-height: 150px;">
+                                <div class="border rounded p-3 text-center" style="min-height: 150px; background: #f8f9fa;">
                                     @if($promo->imagen)
-                                        <img src="{{asset('img/promociones/th'.$promo->imagen)}}"
-                                             class="img-fluid mb-2"
-                                             style="max-height: 120px;">
+                                        <div class="position-relative d-inline-block">
+                                            <img src="{{asset('img/promociones/th'.$promo->imagen)}}"
+                                                 class="img-fluid mb-2"
+                                                 style="max-height: 120px; border-radius: 5px;">
+                                            <button class="btn btn-danger btn-sm position-absolute top-0 end-0 delete-image-btn"
+                                                    data-id="{{$promo->id}}"
+                                                    data-url="{{route('promo.destroyimagen', $promo->id)}}"
+                                                    data-type="principal"
+                                                    style="transform: translate(50%, -50%);">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </div>
                                         <br>
-                                        <button class="btn btn-danger btn-sm delete-image-btn"
-                                                data-id="{{$promo->id}}"
-                                                data-url="{{route('promo.destroyimagen', $promo->id)}}"
-                                                data-type="principal">
-                                            <i class="bi bi-trash"></i> Eliminar
-                                        </button>
                                     @else
-                                        <p class="text-muted">Sin imagen</p>
+                                        <div class="py-3">
+                                            <i class="bi bi-image" style="font-size: 2rem; color: #ccc;"></i>
+                                            <p class="text-muted small mb-0">Sin imagen</p>
+                                        </div>
                                     @endif
                                     <div class="mt-2">
-                                        <input type="file"
-                                               class="form-control promo-image-upload"
-                                               data-id="{{$promo->id}}"
-                                               data-url="{{route('upload.imagen', $promo->id)}}"
-                                               data-type="principal"
-                                               accept="image/*">
+                                        <label class="btn btn-outline-primary btn-sm w-100">
+                                            <i class="bi bi-upload me-1"></i> Subir imagen
+                                            <input type="file"
+                                                   class="d-none promo-image-upload"
+                                                   data-id="{{$promo->id}}"
+                                                   data-url="{{route('upload.imagen', $promo->id)}}"
+                                                   data-type="principal"
+                                                   accept="image/*">
+                                        </label>
                                     </div>
                                 </div>
                             </div>
@@ -138,28 +146,37 @@
                             <!-- Imagen home -->
                             <div class="col-md-6">
                                 <label class="form-label">Imagen para inicio</label>
-                                <div class="border rounded p-3 text-center" style="min-height: 150px;">
+                                <div class="border rounded p-3 text-center" style="min-height: 150px; background: #f8f9fa;">
                                     @if($promo->imagen_home)
-                                        <img src="{{asset('img/promociones/'.$promo->imagen_home)}}"
-                                             class="img-fluid mb-2"
-                                             style="max-height: 120px;">
+                                        <div class="position-relative d-inline-block">
+                                            <img src="{{asset('img/promociones/'.$promo->imagen_home)}}"
+                                                 class="img-fluid mb-2"
+                                                 style="max-height: 120px; border-radius: 5px;">
+                                            <button class="btn btn-danger btn-sm position-absolute top-0 end-0 delete-image-btn"
+                                                    data-id="{{$promo->id}}"
+                                                    data-url="{{route('promo.destroyimagenhome', $promo->id)}}"
+                                                    data-type="home"
+                                                    style="transform: translate(50%, -50%);">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </div>
                                         <br>
-                                        <button class="btn btn-danger btn-sm delete-image-btn"
-                                                data-id="{{$promo->id}}"
-                                                data-url="{{route('promo.destroyimagenhome', $promo->id)}}"
-                                                data-type="home">
-                                            <i class="bi bi-trash"></i> Eliminar
-                                        </button>
                                     @else
-                                        <p class="text-muted">Sin imagen</p>
+                                        <div class="py-3">
+                                            <i class="bi bi-house" style="font-size: 2rem; color: #ccc;"></i>
+                                            <p class="text-muted small mb-0">Sin imagen</p>
+                                        </div>
                                     @endif
                                     <div class="mt-2">
-                                        <input type="file"
-                                               class="form-control promo-image-upload"
-                                               data-id="{{$promo->id}}"
-                                               data-url="{{route('upload.imagenhome', $promo->id)}}"
-                                               data-type="home"
-                                               accept="image/*">
+                                        <label class="btn btn-outline-primary btn-sm w-100">
+                                            <i class="bi bi-upload me-1"></i> Subir imagen
+                                            <input type="file"
+                                                   class="d-none promo-image-upload"
+                                                   data-id="{{$promo->id}}"
+                                                   data-url="{{route('upload.imagenhome', $promo->id)}}"
+                                                   data-type="home"
+                                                   accept="image/*">
+                                        </label>
                                     </div>
                                 </div>
                             </div>
@@ -171,8 +188,8 @@
             <!-- Botones -->
             <div class="col-12 mt-3">
                 <div class="d-flex gap-2 justify-content-end">
-                    <button class="btn btn-danger delete-promo-btn" data-id="{{$promo->id}}">
-                        <i class="bi bi-trash"></i> Eliminar
+                    <button class="btn btn-danger delete-promo-modal-btn" data-id="{{$promo->id}}">
+                        <i class="bi bi-trash"></i> Eliminar promoción
                     </button>
                     <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
@@ -202,13 +219,16 @@
                     if(response.success) {
                         // Actualizar el título en la lista
                         if(field === 'descrip') {
-                            $('.promo-card-wrapper[data-id="'+id+'"] .promo-title').text(value);
+                            $('.promo-card-wrapper[data-id="'+id+'"] .promo-title-text').text(value.substring(0, 45) + (value.length > 45 ? '...' : ''));
                         }
                         if(field === 'monto') {
-                            $('.promo-card-wrapper[data-id="'+id+'"] .precio').text('$ ' + parseFloat(value).toLocaleString());
+                            let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
+                            if(value > 0) {
+                                $card.find('.promo-price').text('$ ' + parseFloat(value).toLocaleString());
+                            } else {
+                                $card.find('.promo-price').hide();
+                            }
                         }
-                        // Recargar la lista de promociones
-                        refreshPromos();
                     }
                 }
             });
@@ -240,7 +260,29 @@
                                 badge.removeClass('bg-success').addClass('bg-secondary').text('Inactiva');
                             }
                         }
-                        refreshPromos();
+                        // Actualizar tags
+                        if(field === 'combo') {
+                            let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
+                            let $tags = $card.find('.promo-tags');
+                            if(value) {
+                                if(!$tags.find('.badge.bg-info').length) {
+                                    $tags.append('<span class="badge bg-info"><i class="bi bi-box me-1"></i>Combo</span>');
+                                }
+                            } else {
+                                $tags.find('.badge.bg-info').remove();
+                            }
+                        }
+                        if(field === 'destacada') {
+                            let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
+                            let $tags = $card.find('.promo-tags');
+                            if(value) {
+                                if(!$tags.find('.badge.bg-danger').length) {
+                                    $tags.append('<span class="badge bg-danger"><i class="bi bi-star-fill me-1"></i>Destacada</span>');
+                                }
+                            } else {
+                                $tags.find('.badge.bg-danger').remove();
+                            }
+                        }
                     }
                 }
             });
@@ -253,23 +295,39 @@
 
             let url = $(this).data('url');
             let id = $(this).data('id');
-            let type = $(this).data('type');
             let formData = new FormData();
-            formData.append('image', file);
+            formData.append('file', file);
             formData.append('_token', '{{csrf_token()}}');
 
-            // Mostrar preview
-            let area = $(this).closest('.border');
+            let $area = $(this).closest('.border');
+            let $preview = $area.find('img');
+
+            // Mostrar preview local
             let reader = new FileReader();
             reader.onload = function(e) {
-                let img = area.find('img');
-                if(img.length) {
-                    img.attr('src', e.target.result);
+                if($preview.length) {
+                    $preview.attr('src', e.target.result);
                 } else {
-                    area.prepend('<img src="'+e.target.result+'" class="img-fluid mb-2" style="max-height: 120px;">');
+                    $area.prepend(`
+                    <div class="position-relative d-inline-block">
+                        <img src="${e.target.result}" class="img-fluid mb-2" style="max-height: 120px; border-radius: 5px;">
+                        <button class="btn btn-danger btn-sm position-absolute top-0 end-0 delete-image-btn"
+                                data-id="${id}"
+                                data-url="${url.replace('upload', 'destroy')}"
+                                style="transform: translate(50%, -50%);">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <br>
+                `);
+                    // Ocultar el mensaje "Sin imagen"
+                    $area.find('.py-3').hide();
                 }
             };
             reader.readAsDataURL(file);
+
+            // Mostrar loading
+            $area.css('opacity', '0.6');
 
             // Subir imagen
             $.ajax({
@@ -279,30 +337,33 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    if(response.success) {
-                        refreshPromos();
-                        // Recargar el modal después de un momento
-                        setTimeout(function() {
-                            let promoId = id;
-                            $.get('/promo/open/' + promoId, function(data) {
-                                $('#promoEditContent').html(data);
-                            });
-                        }, 1000);
+                    if(response.success || response.view) {
+                        // Recargar el modal para mostrar la imagen subida
+                        $.get('/promo/open/' + id, function(data) {
+                            $('#promoEditContent').html(data);
+                        });
                     }
                 },
-                error: function() {
-                    alert('Error al subir la imagen');
+                error: function(xhr) {
+                    alert('Error al subir la imagen: ' + (xhr.responseJSON?.error || 'Error desconocido'));
+                    // Restaurar el área
+                    $area.css('opacity', '1');
+                },
+                complete: function() {
+                    $area.css('opacity', '1');
                 }
             });
         });
 
-        // Eliminar imagen
-        $('.delete-image-btn').on('click', function() {
+        // Eliminar imagen (delegación de eventos)
+        $(document).on('click', '.delete-image-btn', function() {
             let url = $(this).data('url');
             let id = $(this).data('id');
-            let type = $(this).data('type');
+            let $btn = $(this);
 
             if(confirm('¿Eliminar esta imagen?')) {
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+
                 $.ajax({
                     url: url,
                     type: 'DELETE',
@@ -310,20 +371,23 @@
                         'X-CSRF-Token': '{{csrf_token()}}'
                     },
                     success: function() {
-                        refreshPromos();
                         // Recargar el modal
                         $.get('/promo/open/' + id, function(data) {
                             $('#promoEditContent').html(data);
                         });
+                    },
+                    error: function() {
+                        alert('Error al eliminar la imagen');
+                        $btn.prop('disabled', false).html('<i class="bi bi-x-lg"></i>');
                     }
                 });
             }
         });
 
-        // Eliminar promoción
-        $('.delete-promo-btn').on('click', function() {
+        // Eliminar promoción desde modal
+        $(document).on('click', '.delete-promo-modal-btn', function() {
             let id = $(this).data('id');
-            if(confirm('¿Estás seguro de eliminar esta promoción?')) {
+            if(confirm('¿Estás seguro de eliminar esta promoción? Esta acción no se puede deshacer.')) {
                 $.ajax({
                     url: '{{route("promo.delete")}}',
                     type: 'POST',
@@ -333,30 +397,26 @@
                     },
                     success: function() {
                         $('#promoEditModal').modal('hide');
-                        // Eliminar la card
-                        $('.promo-card-wrapper[data-id="'+id+'"]').fadeOut(300, function() {
-                            $(this).remove();
-                        });
+                        // Eliminar card con animación
+                        let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
+                        $card.addClass('fade-out');
+                        setTimeout(function() {
+                            $card.remove();
+                            // Actualizar contador
+                            let total = $('.promo-card-wrapper:visible').length;
+                            $('#totalPromos').text(total);
+
+                            // Si no hay promociones, mostrar mensaje
+                            if($('.promo-card-wrapper').length === 0) {
+                                location.reload();
+                            }
+                        }, 300);
+                    },
+                    error: function() {
+                        alert('Error al eliminar la promoción');
                     }
                 });
             }
         });
     });
-
-    function refreshPromos() {
-        // Recargar la lista de promociones
-        $.ajax({
-            url: '{{route("promos.index")}}',
-            type: 'GET',
-            success: function(response) {
-                if(response.view) {
-                    $('.listar_productos').html(response.view);
-                    // Re-inicializar eventos
-                    if(typeof functions === 'function') {
-                        functions();
-                    }
-                }
-            }
-        });
-    }
 </script>

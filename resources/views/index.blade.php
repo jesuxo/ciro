@@ -89,8 +89,9 @@
         </div>
 
         <div class=" col-lg-4 ">
-            <form name="uploadform" enctype="multipart/form-data" role="form" method="post">
-                <input name="fileimagen" data-promo="1" id="fileimagen" class="inputfile" multiple="multiple" type="file">
+            <form name="uploadform" enctype="multipart/form-data" role="form" method="post" style="display: none;">
+                <input name="fileimagen" id="fileimagen" class="inputfile" multiple="multiple" type="file">
+                <input name="fileimagenhome" id="fileimagenhome" class="inputfile" multiple="multiple" type="file">
             </form>
         </div>
     </div>

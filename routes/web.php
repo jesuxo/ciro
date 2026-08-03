@@ -70,18 +70,28 @@ Route::middleware(['check.admin'])->group(function () {
     Route::post('upload/imagenhome/promo/{id}',[\App\Http\Controllers\PromocionController::class, 'imagenhome'])->name('upload.imagenhome');
     Route::delete('destroy/imagen/promo/{id}',[\App\Http\Controllers\PromocionController::class, 'destroyimagen'])->name('promo.destroyimagen');
     Route::delete('destroy/imagenhome/promo/{id}',[\App\Http\Controllers\PromocionController::class, 'destroyimagenhome'])->name('promo.destroyimagenhome');
-*/
+*/ // Rutas para promociones
     Route::get('/promo/open/{id}', [PromocionController::class, 'open'])->name('promo.open');
     Route::get('/promo/promoid/{id}', [PromocionController::class, 'promoid'])->name('promo.promoid');
     Route::post('/promo/update', [PromocionController::class, 'update'])->name('promo.update');
     Route::post('/promo/delete', [PromocionController::class, 'delete'])->name('promo.delete');
+    Route::post('/promo/refresh', [PromocionController::class, 'promoid'])->name('promo.refresh');
+
+    // Upload de imágenes
     Route::post('/upload/imagen/{id}', [PromocionController::class, 'imagen'])->name('upload.imagen');
     Route::post('/upload/imagenhome/{id}', [PromocionController::class, 'imagenhome'])->name('upload.imagenhome');
+
+    // Eliminar imágenes
     Route::delete('/promo/destroyimagen/{id}', [PromocionController::class, 'destroyimagen'])->name('promo.destroyimagen');
     Route::delete('/promo/destroyimagenhome/{id}', [PromocionController::class, 'destroyimagenhome'])->name('promo.destroyimagenhome');
-    Route::post('/promo/refresh', [PromocionController::class, 'promoid'])->name('promo.refresh');
+
+    // Limpiar todas
     Route::get('/limpiar/promociones', [PromocionController::class, 'limpiar'])->name('limpiar.promociones');
 
+    // Index de promociones (AJAX)
+    Route::get('/promos/index', [PromocionController::class, 'index'])->name('promos.index');
+
+    // CRUD
     Route::resource('promos', \App\Http\Controllers\PromocionController::class);
 
     Route::resource('iaknowledge', \App\Http\Controllers\IAController::class);
