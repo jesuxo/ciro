@@ -25,7 +25,7 @@ class HomeController extends Controller
 
         if($tienda != '') {
 
-            $promociones = Promocion::whereRaw("activo = 1 and tienda = '$tienda'")
+            $promociones = Promocion::whereRaw(" tienda = '$tienda'")
                 ->orderBy('combo', 'desc')  // Primero los que tienen combo = 1
                 ->orderBy('id', 'desc')     // Luego por id descendente
                 ->get();

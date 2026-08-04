@@ -1,3 +1,4 @@
+<!--views/dashboard/partials/promociones.blade.php -->
 <style>
     .promo-card {
         border-radius: 12px;
@@ -759,34 +760,6 @@
             }
         });
 
-        // Eliminar promoción desde modal
-        $(document).on('click', '.delete-promo-modal-btn', function() {
-            let id = $(this).data('id');
-            if(confirm('¿Estás seguro de eliminar esta promoción?')) {
-                $.ajax({
-                    url: '{{route("promo.delete")}}',
-                    type: 'POST',
-                    data: {
-                        id: id,
-                        _token: '{{csrf_token()}}'
-                    },
-                    success: function() {
-                        $('#promoEditModal').modal('hide');
-                        // Eliminar card
-                        let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
-                        $card.addClass('fade-out');
-                        setTimeout(function() {
-                            $card.remove();
-                            let total = $('.promo-card-wrapper:visible').length;
-                            $('#totalPromos').text(total);
-                            if ($('.promo-card-wrapper').length === 0) {
-                                location.reload();
-                            }
-                        }, 300);
-                    }
-                });
-            }
-        });
     }
 
     // Función global para abrir el modal desde otros lugares
