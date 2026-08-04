@@ -431,11 +431,11 @@
                             @endphp
                             <img src="{{$imagePath}}" alt="{{$promo->descrip}}" loading="lazy">
 
-                            <!-- Badge de estado -->
+                            <!-- Badge de estado
                             <span class="status-badge {{$promo->activo ? 'bg-success' : 'bg-secondary'}} text-white">
                                 {{$promo->activo ? '● Activa' : '○ Inactiva'}}
                             </span>
-
+-->
                             <!-- ACCIONES SOBRE LA IMAGEN (aparecen al hover) -->
                             <div class="promo-image-actions">
                                 <button class="btn btn-edit open-promo-edit"
@@ -646,7 +646,7 @@
                     $card.data('status', newStatus ? 'active' : 'inactive');
 
                     // Actualizar badge
-                    let badge = $card.find('.status-badge');
+                   /* let badge = $card.find('.status-badge');
                     if(newStatus) {
                         badge.removeClass('bg-secondary').addClass('bg-success').text('● Activa');
                         $btn.removeClass('active').addClass('active');
@@ -657,7 +657,7 @@
                         $btn.removeClass('active');
                         $btn.find('i').removeClass('bi-toggle-on').addClass('bi-toggle-off');
                         $btn.attr('title', 'Activar');
-                    }
+                    }*/
 
                     applyFilters();
                 },
