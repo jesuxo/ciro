@@ -231,7 +231,7 @@
 
     @media (min-width: 1200px) {
         .promo-grid {
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         }
     }
 
