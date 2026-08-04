@@ -1,94 +1,178 @@
 <!-- views/dashboard/partials/promociones.blade.php -->
 <style>
     .promo-card {
-        border-radius: 8px;
+        border-radius: 10px;
         overflow: hidden;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         border: 1px solid #e9ecef;
         background: #fff;
         height: 100%;
+        position: relative;
     }
 
     .promo-card:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        transform: translateY(-4px);
     }
 
+    /* Contenedor de imagen más grande */
     .promo-image-container {
         position: relative;
         overflow: hidden;
-        height: 140px;
+        height: 200px;
         background: #f8f9fa;
+        cursor: pointer;
     }
 
     .promo-image-container img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: transform 0.3s ease;
+        transition: transform 0.5s ease;
     }
 
     .promo-card:hover .promo-image-container img {
-        transform: scale(1.05);
+        transform: scale(1.08);
     }
 
+    /* Overlay de acciones en la imagen */
+    .promo-image-actions {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: flex;
+        gap: 6px;
+        z-index: 5;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .promo-card:hover .promo-image-actions {
+        opacity: 1;
+    }
+
+    .promo-image-actions .btn {
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border-radius: 50%;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.9);
+        backdrop-filter: blur(4px);
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        transition: all 0.2s ease;
+    }
+
+    .promo-image-actions .btn:hover {
+        transform: scale(1.1);
+    }
+
+    .promo-image-actions .btn-edit {
+        color: #0d6efd;
+    }
+
+    .promo-image-actions .btn-edit:hover {
+        background: #0d6efd;
+        color: #fff;
+    }
+
+    .promo-image-actions .btn-delete {
+        color: #dc3545;
+    }
+
+    .promo-image-actions .btn-delete:hover {
+        background: #dc3545;
+        color: #fff;
+    }
+
+    .promo-image-actions .btn-toggle {
+        color: #6c757d;
+    }
+
+    .promo-image-actions .btn-toggle.active {
+        color: #198754;
+    }
+
+    .promo-image-actions .btn-toggle:hover {
+        background: #198754;
+        color: #fff;
+    }
+
+    /* Badge de estado en la imagen */
     .status-badge {
-        padding: 2px 10px;
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        padding: 3px 10px;
         border-radius: 12px;
         font-size: 0.6rem;
         font-weight: 600;
         backdrop-filter: blur(4px);
-        z-index: 2;
+        z-index: 5;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
     }
 
+    /* Overlay inferior con título y precio */
     .promo-overlay {
         position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
-        padding: 20px 10px 10px;
-        background: linear-gradient(transparent, rgba(0,0,0,0.7));
-        z-index: 1;
+        padding: 30px 12px 12px;
+        background: linear-gradient(transparent, rgba(0,0,0,0.75));
+        z-index: 2;
     }
 
     .promo-title {
         color: #fff;
         font-weight: 600;
-        font-size: 0.8rem;
-        text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        font-size: 0.9rem;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.4);
         margin: 0;
         line-height: 1.2;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
-    .promo-price {
-        background: rgba(255, 193, 7, 0.9);
+    .promo-price-badge {
+        display: inline-block;
+        background: rgba(255, 193, 7, 0.95);
         color: #000;
-        padding: 1px 8px;
+        padding: 2px 10px;
         border-radius: 12px;
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         font-weight: 700;
+        margin-top: 4px;
     }
 
+    /* Body del card - más compacto */
     .promo-card-body {
-        padding: 8px 10px 10px;
+        padding: 8px 12px 10px;
+        background: #fff;
     }
 
     .promo-meta {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        font-size: 0.6rem;
+        color: #6c757d;
         margin-bottom: 4px;
-        font-size: 0.6rem;
-    }
-
-    .promo-meta .text-muted {
-        font-size: 0.6rem;
     }
 
     .promo-meta i {
         font-size: 0.6rem;
+        margin-right: 3px;
     }
 
+    /* Tags compactos */
     .promo-tags {
         display: flex;
         gap: 3px;
@@ -97,86 +181,78 @@
     }
 
     .promo-tags .badge {
-        font-size: 0.55rem;
+        font-size: 0.5rem;
         padding: 2px 6px;
+        font-weight: 500;
     }
 
     .promo-tags .badge i {
-        font-size: 0.5rem;
+        font-size: 0.45rem;
         margin-right: 2px;
     }
 
-    .promo-actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 4px;
-        border-top: 1px solid #e9ecef;
-    }
-
-    .promo-actions .btn {
-        font-size: 0.65rem;
-        padding: 2px 8px;
-    }
-
-    .promo-actions .btn i {
-        font-size: 0.7rem;
-    }
-
-    .promo-actions .form-check-input {
-        width: 30px;
-        height: 17px;
-        cursor: pointer;
-        margin-top: 0;
-    }
-
-    .promo-card-wrapper {
-        animation: fadeInUp 0.3s ease forwards;
-        margin-bottom: 12px;
-    }
-
-    /* Grid personalizado para cards compactos */
+    /* Grid */
     .promo-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 12px;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 16px;
     }
 
+    /* Responsive */
     @media (max-width: 576px) {
         .promo-grid {
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 10px;
         }
         .promo-image-container {
-            height: 110px;
+            height: 150px;
         }
         .promo-title {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
         }
         .promo-card-body {
             padding: 6px 8px 8px;
+        }
+        .promo-image-actions {
+            opacity: 1;
+        }
+        .promo-image-actions .btn {
+            width: 24px;
+            height: 24px;
+            font-size: 0.65rem;
         }
     }
 
     @media (min-width: 768px) and (max-width: 992px) {
         .promo-grid {
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         }
+    }
+
+    @media (min-width: 1200px) {
+        .promo-grid {
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        }
+    }
+
+    /* Animaciones */
+    .promo-card-wrapper {
+        animation: fadeInUp 0.3s ease forwards;
+    }
+
+    .promo-card-wrapper.fade-out {
+        animation: fadeOut 0.3s ease forwards;
     }
 
     @keyframes fadeInUp {
         from {
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateY(15px);
         }
         to {
             opacity: 1;
             transform: translateY(0);
         }
-    }
-
-    .promo-card-wrapper.fade-out {
-        animation: fadeOut 0.3s ease forwards;
     }
 
     @keyframes fadeOut {
@@ -186,13 +262,15 @@
         }
     }
 
+    /* Estado vacío */
     .promo-empty-state {
-        padding: 40px 20px;
+        padding: 50px 20px;
         text-align: center;
+        grid-column: 1 / -1;
     }
 
     .promo-empty-state i {
-        font-size: 3rem;
+        font-size: 3.5rem;
         color: #dee2e6;
         display: block;
         margin-bottom: 15px;
@@ -236,7 +314,7 @@
         height: 32px;
     }
 
-    /* Scroll personalizado */
+    /* Scroll */
     .promo-grid-container::-webkit-scrollbar {
         width: 4px;
     }
@@ -255,7 +333,7 @@
         background: #a8b0b8;
     }
 
-    /* Header compacto */
+    /* Header */
     .card-header-compact {
         padding: 10px 15px;
     }
@@ -275,7 +353,22 @@
     }
 
     .card-body-compact {
-        padding: 10px;
+        padding: 12px;
+    }
+
+    /* Tooltip para acciones en hover */
+    .promo-image-actions .btn[title]:hover::after {
+        content: attr(title);
+        position: absolute;
+        bottom: -22px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.8);
+        color: #fff;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.55rem;
+        white-space: nowrap;
     }
 </style>
 
@@ -296,7 +389,7 @@
             </div>
         </div>
 
-        <!-- Filtros compactos -->
+        <!-- Filtros -->
         <div class="row g-1 mt-2 filters-row">
             <div class="col-md-5 col-6">
                 <div class="input-group input-group-sm">
@@ -322,7 +415,6 @@
     </div>
 
     <div class="card-body card-body-compact promo-grid-container" style="max-height: 600px; overflow-y: auto;">
-        <!-- Grid de promociones con CSS Grid -->
         <div class="promo-grid" id="promoGrid">
             @forelse($promociones as $promo)
                 <div class="promo-card-wrapper"
@@ -332,41 +424,57 @@
                      data-search="{{strtolower($promo->descrip)}}">
 
                     <div class="promo-card">
-                        <!-- Imagen -->
+                        <!-- IMAGEN -->
                         <div class="promo-image-container">
                             @php
-                                $imagePath = $promo->imagen ? asset('img/promociones/th'.$promo->imagen) : asset('img/no-image.png');
+                                $imagePath = $promo->imagen ? asset('img/promociones/'.$promo->imagen) : asset('img/no-image.png');
                             @endphp
                             <img src="{{$imagePath}}" alt="{{$promo->descrip}}" loading="lazy">
 
                             <!-- Badge de estado -->
-                            <span class="status-badge badge position-absolute top-0 end-0 m-1 {{$promo->activo ? 'bg-success' : 'bg-secondary'}}">
-                                {{$promo->activo ? 'Activa' : 'Inactiva'}}
+                            <span class="status-badge {{$promo->activo ? 'bg-success' : 'bg-secondary'}} text-white">
+                                {{$promo->activo ? '● Activa' : '○ Inactiva'}}
                             </span>
 
-                            <!-- Precio en overlay -->
-                            @if($promo->monto > 0)
-                                <div class="position-absolute bottom-0 end-0 m-1">
-                                    <span class="promo-price">$ {{number_format($promo->monto, 0, ',', '.')}}</span>
-                                </div>
-                            @endif
+                            <!-- ACCIONES SOBRE LA IMAGEN (aparecen al hover) -->
+                            <div class="promo-image-actions">
+                                <button class="btn btn-edit open-promo-edit"
+                                        data-id="{{$promo->id}}"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#promoEditModal"
+                                        title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-delete delete-promo-btn"
+                                        data-id="{{$promo->id}}"
+                                        title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                <button class="btn btn-toggle promo-toggle-active {{$promo->activo ? 'active' : ''}}"
+                                        data-id="{{$promo->id}}"
+                                        title="{{$promo->activo ? 'Desactivar' : 'Activar'}}">
+                                    <i class="bi {{$promo->activo ? 'bi-toggle-on' : 'bi-toggle-off'}}"></i>
+                                </button>
+                            </div>
+
+                            <!-- Overlay con título y precio -->
+                            <div class="promo-overlay">
+                                <p class="promo-title">{{Str::limit($promo->descrip, 50)}}</p>
+                                @if($promo->monto > 0)
+                                    <span class="promo-price-badge">$ {{number_format($promo->monto, 0, ',', '.')}}</span>
+                                @endif
+                            </div>
                         </div>
 
-                        <!-- Body compacto -->
+                        <!-- BODY COMPACTO -->
                         <div class="promo-card-body">
-                            <!-- Título -->
-                            <p class="promo-title-text mb-1" style="font-size: 0.75rem; font-weight: 600; color: #333; line-height: 1.2; min-height: 18px;">
-                                {{Str::limit($promo->descrip, 30)}}
-                            </p>
-
-                            <!-- Meta información -->
                             <div class="promo-meta">
-                                <small class="text-muted">
+                                <span>
                                     <i class="bi bi-calendar3"></i> {{$promo->created_at->diffForHumans()}}
-                                </small>
-                                <small class="text-muted">
-                                    <i class="bi bi-shop"></i> {{$promo->tienda == 'SanCristobal' ? 'SC' : 'EV'}}
-                                </small>
+                                </span>
+                                <span>
+                                    <i class="bi bi-shop"></i> {{$promo->tienda == 'SanCristobal' ? 'San Cristóbal' : 'El Vigía'}}
+                                </span>
                             </div>
 
                             <!-- Tags -->
@@ -387,52 +495,24 @@
                                     </span>
                                 @endif
                             </div>
-
-                            <!-- Acciones -->
-                            <div class="promo-actions">
-                                <div class="d-flex gap-1">
-                                    <button class="btn btn-outline-primary btn-sm open-promo-edit"
-                                            data-id="{{$promo->id}}"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#promoEditModal"
-                                            title="Editar">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-outline-danger btn-sm delete-promo-btn"
-                                            data-id="{{$promo->id}}"
-                                            title="Eliminar">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-
-                                <div class="form-check form-switch m-0">
-                                    <input class="form-check-input promo-toggle-active"
-                                           type="checkbox"
-                                           data-id="{{$promo->id}}"
-                                           {{$promo->activo ? 'checked' : ''}}
-                                           title="Activar/Desactivar">
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
             @empty
-                <div class="col-12">
-                    <div class="promo-empty-state">
-                        <i class="bi bi-box-seam"></i>
-                        <h5>No hay promociones</h5>
-                        <p>Comienza creando tu primera promoción</p>
-                        <a href="{{route('promos.create',['tienda'=>$tienda ?? 'SanCristobal'])}}" class="btn btn-primary btn-sm">
-                            <i class="bi bi-plus-circle me-1"></i> Crear promoción
-                        </a>
-                    </div>
+                <div class="promo-empty-state">
+                    <i class="bi bi-box-seam"></i>
+                    <h5>No hay promociones</h5>
+                    <p>Comienza creando tu primera promoción</p>
+                    <a href="{{route('promos.create',['tienda'=>$tienda ?? 'SanCristobal'])}}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus-circle me-1"></i> Crear promoción
+                    </a>
                 </div>
             @endforelse
         </div>
     </div>
 </div>
 
-<!-- Modal para editar promociones -->
+<!-- Modal para editar -->
 <div class="modal fade" id="promoEditModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
@@ -458,16 +538,13 @@
     $(document).ready(function() {
         // Variables para filtros
         let searchTerm = '';
-        let filterTienda = 'all';
         let filterStatus = 'all';
 
-        // Función para aplicar todos los filtros
         function applyFilters() {
             $('.promo-card-wrapper').each(function() {
                 let $card = $(this);
                 let show = true;
 
-                // Filtro de búsqueda
                 if (searchTerm) {
                     let text = $card.data('search') || '';
                     if (!text.includes(searchTerm)) {
@@ -475,7 +552,6 @@
                     }
                 }
 
-                // Filtro de estado
                 if (show && filterStatus !== 'all') {
                     if ($card.data('status') !== filterStatus) {
                         show = false;
@@ -485,24 +561,20 @@
                 $card.toggle(show);
             });
 
-            // Actualizar contador visible
             let visible = $('.promo-card-wrapper:visible').length;
             $('#totalPromos').text(visible);
         }
 
-        // Búsqueda en tiempo real
         $('#searchPromo').on('keyup', function() {
             searchTerm = $(this).val().toLowerCase().trim();
             applyFilters();
         });
 
-        // Filtro por estado
         $('#filterStatus').on('change', function() {
             filterStatus = $(this).val();
             applyFilters();
         });
 
-        // Limpiar filtros
         $('#clearFilters').on('click', function() {
             $('#searchPromo').val('');
             $('#filterStatus').val('all');
@@ -538,7 +610,7 @@
                         initModalEvents();
                     }
                 },
-                error: function(xhr) {
+                error: function() {
                     content.html(`
                         <div class="alert alert-danger m-3">
                             <i class="bi bi-exclamation-triangle me-2"></i>
@@ -549,14 +621,16 @@
             });
         });
 
-        // Toggle activo/inactivo
-        $(document).on('change', '.promo-toggle-active', function() {
-            let $toggle = $(this);
-            let id = $toggle.data('id');
-            let checked = $toggle.is(':checked') ? 1 : 0;
+        // Toggle activo/inactivo (desde el botón en la imagen)
+        $(document).on('click', '.promo-toggle-active', function(e) {
+            e.stopPropagation();
+            let $btn = $(this);
+            let id = $btn.data('id');
+            let currentlyActive = $btn.hasClass('active');
+            let newStatus = currentlyActive ? 0 : 1;
             let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
 
-            $toggle.prop('disabled', true);
+            $btn.prop('disabled', true);
 
             $.ajax({
                 url: '{{route("promo.update")}}',
@@ -564,31 +638,41 @@
                 data: {
                     id: id,
                     n: 'activo',
-                    v: checked,
+                    v: newStatus,
                     _token: '{{csrf_token()}}'
                 },
                 success: function() {
-                    $card.data('status', checked ? 'active' : 'inactive');
+                    // Actualizar card
+                    $card.data('status', newStatus ? 'active' : 'inactive');
+
+                    // Actualizar badge
                     let badge = $card.find('.status-badge');
-                    if(checked) {
-                        badge.removeClass('bg-secondary').addClass('bg-success').text('Activa');
+                    if(newStatus) {
+                        badge.removeClass('bg-secondary').addClass('bg-success').text('● Activa');
+                        $btn.removeClass('active').addClass('active');
+                        $btn.find('i').removeClass('bi-toggle-off').addClass('bi-toggle-on');
+                        $btn.attr('title', 'Desactivar');
                     } else {
-                        badge.removeClass('bg-success').addClass('bg-secondary').text('Inactiva');
+                        badge.removeClass('bg-success').addClass('bg-secondary').text('○ Inactiva');
+                        $btn.removeClass('active');
+                        $btn.find('i').removeClass('bi-toggle-on').addClass('bi-toggle-off');
+                        $btn.attr('title', 'Activar');
                     }
+
                     applyFilters();
                 },
                 error: function() {
                     alert('Error al actualizar el estado');
-                    $toggle.prop('checked', !$toggle.is(':checked'));
                 },
                 complete: function() {
-                    $toggle.prop('disabled', false);
+                    $btn.prop('disabled', false);
                 }
             });
         });
 
-        // Eliminar promoción
-        $(document).on('click', '.delete-promo-btn', function() {
+        // Eliminar promoción (desde el botón en la imagen)
+        $(document).on('click', '.delete-promo-btn', function(e) {
+            e.stopPropagation();
             let id = $(this).data('id');
 
             if(confirm('¿Estás seguro de eliminar esta promoción?')) {
@@ -607,7 +691,6 @@
                             $card.remove();
                             let total = $('.promo-card-wrapper:visible').length;
                             $('#totalPromos').text(total);
-
                             if ($('.promo-card-wrapper').length === 0) {
                                 location.reload();
                             }
@@ -620,13 +703,12 @@
             }
         });
 
-        // Inicializar filtros
         applyFilters();
     });
 
     // Función para inicializar eventos del modal
     function initModalEvents() {
-        // Auto-guardar al cambiar inputs
+        // Auto-guardar inputs
         $('.promo-input').on('change', function() {
             let id = $(this).data('id');
             let field = $(this).data('field');
@@ -641,18 +723,16 @@
                     v: value,
                     _token: '{{csrf_token()}}'
                 },
-                success: function(response) {
-                    if(response.success) {
-                        if(field === 'descrip') {
-                            $('.promo-card-wrapper[data-id="'+id+'"] .promo-title-text').text(value.substring(0, 30) + (value.length > 30 ? '...' : ''));
-                        }
-                        if(field === 'monto') {
-                            let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
-                            if(value > 0) {
-                                $card.find('.promo-price').text('$ ' + parseFloat(value).toLocaleString());
-                            } else {
-                                $card.find('.promo-price').hide();
-                            }
+                success: function() {
+                    if(field === 'descrip') {
+                        $('.promo-card-wrapper[data-id="'+id+'"] .promo-title').text(value.substring(0, 50) + (value.length > 50 ? '...' : ''));
+                    }
+                    if(field === 'monto') {
+                        let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
+                        if(value > 0) {
+                            $card.find('.promo-price-badge').text('$ ' + parseFloat(value).toLocaleString()).show();
+                        } else {
+                            $card.find('.promo-price-badge').hide();
                         }
                     }
                 }
@@ -674,37 +754,27 @@
                     v: value,
                     _token: '{{csrf_token()}}'
                 },
-                success: function(response) {
-                    if(response.success) {
-                        if(field === 'activo') {
-                            let badge = $('.promo-card-wrapper[data-id="'+id+'"] .status-badge');
-                            if(value) {
-                                badge.removeClass('bg-secondary').addClass('bg-success').text('Activa');
-                            } else {
-                                badge.removeClass('bg-success').addClass('bg-secondary').text('Inactiva');
+                success: function() {
+                    if(field === 'combo') {
+                        let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
+                        let $tags = $card.find('.promo-tags');
+                        if(value) {
+                            if(!$tags.find('.badge.bg-info').length) {
+                                $tags.append('<span class="badge bg-info"><i class="bi bi-box"></i>Combo</span>');
                             }
+                        } else {
+                            $tags.find('.badge.bg-info').remove();
                         }
-                        if(field === 'combo') {
-                            let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
-                            let $tags = $card.find('.promo-tags');
-                            if(value) {
-                                if(!$tags.find('.badge.bg-info').length) {
-                                    $tags.append('<span class="badge bg-info"><i class="bi bi-box"></i>Combo</span>');
-                                }
-                            } else {
-                                $tags.find('.badge.bg-info').remove();
+                    }
+                    if(field === 'destacada') {
+                        let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
+                        let $tags = $card.find('.promo-tags');
+                        if(value) {
+                            if(!$tags.find('.badge.bg-danger').length) {
+                                $tags.append('<span class="badge bg-danger"><i class="bi bi-star-fill"></i>Destacada</span>');
                             }
-                        }
-                        if(field === 'destacada') {
-                            let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
-                            let $tags = $card.find('.promo-tags');
-                            if(value) {
-                                if(!$tags.find('.badge.bg-danger').length) {
-                                    $tags.append('<span class="badge bg-danger"><i class="bi bi-star-fill"></i>Destacada</span>');
-                                }
-                            } else {
-                                $tags.find('.badge.bg-danger').remove();
-                            }
+                        } else {
+                            $tags.find('.badge.bg-danger').remove();
                         }
                     }
                 }
@@ -723,18 +793,11 @@
             formData.append('_token', '{{csrf_token()}}');
 
             let $area = $(this).closest('.border');
-
-            // Mostrar preview local
             let reader = new FileReader();
             reader.onload = function(e) {
                 let img = $area.find('img');
                 if(img.length) {
                     img.attr('src', e.target.result);
-                } else {
-                    $area.prepend(`
-                        <img src="${e.target.result}" class="img-fluid mb-2" style="max-height: 100px; border-radius: 5px;">
-                    `);
-                    $area.find('.py-3').hide();
                 }
             };
             reader.readAsDataURL(file);
@@ -747,18 +810,13 @@
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function(response) {
-                    if(response.success || response.view) {
-                        $.get('/promo/open/' + id, function(data) {
-                            $('#promoEditContent').html(data);
-                        });
-                    }
+                success: function() {
+                    $.get('/promo/open/' + id, function(data) {
+                        $('#promoEditContent').html(data);
+                    });
                 },
-                error: function(xhr) {
+                error: function() {
                     alert('Error al subir la imagen');
-                    $area.css('opacity', '1');
-                },
-                complete: function() {
                     $area.css('opacity', '1');
                 }
             });
@@ -783,21 +841,10 @@
                             $card.remove();
                             let total = $('.promo-card-wrapper:visible').length;
                             $('#totalPromos').text(total);
-                            if($('.promo-card-wrapper').length === 0) {
-                                location.reload();
-                            }
                         }, 300);
-                    },
-                    error: function() {
-                        alert('Error al eliminar la promoción');
                     }
                 });
             }
         });
     }
-
-    // Función global para abrir el modal
-    window.openPromoEdit = function(id) {
-        $('.open-promo-edit[data-id="'+id+'"]').click();
-    };
 </script>
