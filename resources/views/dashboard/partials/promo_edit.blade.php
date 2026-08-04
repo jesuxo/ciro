@@ -1,4 +1,4 @@
-<!-- views/dashboard/partials/promo_edit.blade.php -->
+<!-- views/dashboard/partialspromo_edit.blade.php -->
 <div class="card">
     <div class="card-body">
         <div class="row">

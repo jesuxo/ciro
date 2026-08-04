@@ -581,184 +581,230 @@
 
     // Función para inicializar eventos del modal
     function initModalEvents() {
-        // Auto-guardar inputs
-        $('.promo-input').off('change').on('change', function() {
-            let $input = $(this);
-            let id = $input.data('id');
-            let field = $input.data('field');
-            let value = $input.val();
 
-            $.ajax({
-                url: '{{route("promo.update")}}',
-                type: 'POST',
-                data: {
-                    id: id,
-                    n: field,
-                    v: value,
-                    _token: '{{csrf_token()}}'
-                },
-                success: function() {
-                    // Actualizar título en la card
-                    if(field === 'descrip') {
-                        let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
-                        $card.find('.promo-title-text').text(value.substring(0, 45) + (value.length > 45 ? '...' : ''));
-                        $card.data('search', value.toLowerCase());
-                        // Re-aplicar filtros
-                        if (typeof applyFilters === 'function') {
-                            applyFilters();
-                        }
-                    }
-                    if(field === 'monto') {
-                        let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
-                        if(value > 0) {
-                            $card.find('.promo-price').text('$ ' + parseFloat(value).toLocaleString());
-                        } else {
-                            $card.find('.promo-price').hide();
-                        }
-                    }
-                }
-            });
-        });
 
-        // Switches
-        $('.promo-switch').off('change').on('change', function() {
-            let $switch = $(this);
-            let id = $switch.data('id');
-            let field = $switch.data('field');
-            let value = $switch.is(':checked') ? 1 : 0;
+        ////////////////////////////////////////
 
-            $.ajax({
-                url: '{{route("promo.update")}}',
-                type: 'POST',
-                data: {
-                    id: id,
-                    n: field,
-                    v: value,
-                    _token: '{{csrf_token()}}'
-                },
-                success: function() {
-                    // Actualizar tags en la card
-                    if(field === 'combo') {
-                        let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
-                        let $tags = $card.find('.promo-tags');
-                        if(value) {
-                            if(!$tags.find('.badge.bg-info').length) {
-                                $tags.append('<span class="badge bg-info"><i class="bi bi-box me-1"></i>Combo</span>');
-                            }
-                        } else {
-                            $tags.find('.badge.bg-info').remove();
-                        }
-                    }
-                    if(field === 'destacada') {
-                        let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
-                        let $tags = $card.find('.promo-tags');
-                        if(value) {
-                            if(!$tags.find('.badge.bg-danger').length) {
-                                $tags.append('<span class="badge bg-danger"><i class="bi bi-star-fill me-1"></i>Destacada</span>');
-                            }
-                        } else {
-                            $tags.find('.badge.bg-danger').remove();
-                        }
-                    }
-                    if(field === 'activo') {
-                        let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
-                        let badge = $card.find('.status-badge');
-                        if(value) {
-                            badge.removeClass('bg-secondary').addClass('bg-success').text('Activa');
-                        } else {
-                            badge.removeClass('bg-success').addClass('bg-secondary').text('Inactiva');
-                        }
-                    }
-                }
-            });
-        });
+            // Auto-guardar al cambiar inputs
+            $('.promo-input').on('change', function() {
+                let id = $(this).data('id');
+                let field = $(this).data('field');
+                let value = $(this).val();
 
-        // Upload de imágenes con preview
-        $('.promo-image-upload').off('change').on('change', function() {
-            let file = this.files[0];
-            if(!file) return;
-
-            let url = $(this).data('url');
-            let id = $(this).data('id');
-            let formData = new FormData();
-            formData.append('file', file);
-            formData.append('_token', '{{csrf_token()}}');
-
-            let $area = $(this).closest('.image-upload-area');
-            let $preview = $area.find('.image-preview');
-            let $btn = $area.find('.delete-image-btn');
-
-            // Preview local
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                $preview.attr('src', e.target.result).show();
-                $preview.css('max-height', '150px');
-            };
-            reader.readAsDataURL(file);
-
-            // Mostrar loading
-            $area.addClass('opacity-50');
-
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    if(response.success || response.view) {
-                        // Mostrar botón de eliminar
-                        if($btn.length === 0) {
-                            $area.append(`
-                            <button class="btn btn-danger btn-sm mt-2 delete-image-btn"
-                                    data-id="${id}"
-                                    data-url="${url.replace('upload', 'destroy')}">
-                                <i class="bi bi-trash"></i> Eliminar
-                            </button>
-                        `);
-                        }
-                        // Si hay vista, actualizar
-                        if(response.view) {
-                            $area.html(response.view);
-                        }
-                    }
-                },
-                error: function() {
-                    alert('Error al subir la imagen');
-                    // Restaurar preview anterior
-                    $preview.attr('src', '{{asset("img/addpicture.png")}}');
-                },
-                complete: function() {
-                    $area.removeClass('opacity-50');
-                }
-            });
-        });
-
-        // Eliminar imagen
-        $(document).on('click', '.delete-image-btn', function() {
-            let url = $(this).data('url');
-            let id = $(this).data('id');
-
-            if(confirm('¿Eliminar esta imagen?')) {
                 $.ajax({
-                    url: url,
-                    type: 'DELETE',
-                    headers: {
-                        'X-CSRF-Token': '{{csrf_token()}}'
+                    url: '{{route("promo.update")}}',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        n: field,
+                        v: value,
+                        _token: '{{csrf_token()}}'
                     },
-                    success: function() {
-                        // Recargar el modal
-                        $.get('/promo/open/' + id, function(data) {
-                            $('#promoEditContent').html(data);
-                            initModalEvents();
-                        });
-                    },
-                    error: function() {
-                        alert('Error al eliminar la imagen');
+                    success: function(response) {
+                        if(response.success) {
+                            // Actualizar el título en la lista
+                            if(field === 'descrip') {
+                                $('.promo-card-wrapper[data-id="'+id+'"] .promo-title-text').text(value.substring(0, 45) + (value.length > 45 ? '...' : ''));
+                            }
+                            if(field === 'monto') {
+                                let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
+                                if(value > 0) {
+                                    $card.find('.promo-price').text('$ ' + parseFloat(value).toLocaleString());
+                                } else {
+                                    $card.find('.promo-price').hide();
+                                }
+                            }
+                        }
                     }
                 });
-            }
-        });
+            });
+
+            // Switches
+            $('.promo-switch').on('change', function() {
+                let id = $(this).data('id');
+                let field = $(this).data('field');
+                let value = $(this).is(':checked') ? 1 : 0;
+
+                $.ajax({
+                    url: '{{route("promo.update")}}',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        n: field,
+                        v: value,
+                        _token: '{{csrf_token()}}'
+                    },
+                    success: function(response) {
+                        if(response.success) {
+                            // Actualizar el badge de estado
+                            if(field === 'activo') {
+                                let badge = $('.promo-card-wrapper[data-id="'+id+'"] .status-badge');
+                                if(value) {
+                                    badge.removeClass('bg-secondary').addClass('bg-success').text('Activa');
+                                } else {
+                                    badge.removeClass('bg-success').addClass('bg-secondary').text('Inactiva');
+                                }
+                            }
+                            // Actualizar tags
+                            if(field === 'combo') {
+                                let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
+                                let $tags = $card.find('.promo-tags');
+                                if(value) {
+                                    if(!$tags.find('.badge.bg-info').length) {
+                                        $tags.append('<span class="badge bg-info"><i class="bi bi-box me-1"></i>Combo</span>');
+                                    }
+                                } else {
+                                    $tags.find('.badge.bg-info').remove();
+                                }
+                            }
+                            if(field === 'destacada') {
+                                let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
+                                let $tags = $card.find('.promo-tags');
+                                if(value) {
+                                    if(!$tags.find('.badge.bg-danger').length) {
+                                        $tags.append('<span class="badge bg-danger"><i class="bi bi-star-fill me-1"></i>Destacada</span>');
+                                    }
+                                } else {
+                                    $tags.find('.badge.bg-danger').remove();
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Upload de imágenes
+            $('.promo-image-upload').on('change', function() {
+                let file = this.files[0];
+                if(!file) return;
+
+                let url = $(this).data('url');
+                let id = $(this).data('id');
+                let formData = new FormData();
+                formData.append('file', file);
+                formData.append('_token', '{{csrf_token()}}');
+
+                let $area = $(this).closest('.border');
+                let $preview = $area.find('img');
+
+                // Mostrar preview local
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    if($preview.length) {
+                        $preview.attr('src', e.target.result);
+                    } else {
+                        $area.prepend(`
+                    <div class="position-relative d-inline-block">
+                        <img src="${e.target.result}" class="img-fluid mb-2" style="max-height: 120px; border-radius: 5px;">
+                        <button class="btn btn-danger btn-sm position-absolute top-0 end-0 delete-image-btn"
+                                data-id="${id}"
+                                data-url="${url.replace('upload', 'destroy')}"
+                                style="transform: translate(50%, -50%);">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <br>
+                `);
+                        // Ocultar el mensaje "Sin imagen"
+                        $area.find('.py-3').hide();
+                    }
+                };
+                reader.readAsDataURL(file);
+
+                // Mostrar loading
+                $area.css('opacity', '0.6');
+
+                // Subir imagen
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if(response.success || response.view) {
+                            // Recargar el modal para mostrar la imagen subida
+                            $.get('/promo/open/' + id, function(data) {
+                                $('#promoEditContent').html(data);
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('Error al subir la imagen: ' + (xhr.responseJSON?.error || 'Error desconocido'));
+                        // Restaurar el área
+                        $area.css('opacity', '1');
+                    },
+                    complete: function() {
+                        $area.css('opacity', '1');
+                    }
+                });
+            });
+
+            // Eliminar imagen (delegación de eventos)
+            $(document).on('click', '.delete-image-btn', function() {
+                let url = $(this).data('url');
+                let id = $(this).data('id');
+                let $btn = $(this);
+
+                if(confirm('¿Eliminar esta imagen?')) {
+                    $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+
+                    $.ajax({
+                        url: url,
+                        type: 'DELETE',
+                        headers: {
+                            'X-CSRF-Token': '{{csrf_token()}}'
+                        },
+                        success: function() {
+                            // Recargar el modal
+                            $.get('/promo/open/' + id, function(data) {
+                                $('#promoEditContent').html(data);
+                            });
+                        },
+                        error: function() {
+                            alert('Error al eliminar la imagen');
+                            $btn.prop('disabled', false).html('<i class="bi bi-x-lg"></i>');
+                        }
+                    });
+                }
+            });
+
+            // Eliminar promoción desde modal
+            $(document).on('click', '.delete-promo-modal-btn', function() {
+                let id = $(this).data('id');
+                if(confirm('¿Estás seguro de eliminar esta promoción? Esta acción no se puede deshacer.')) {
+                    $.ajax({
+                        url: '{{route("promo.delete")}}',
+                        type: 'POST',
+                        data: {
+                            id: id,
+                            _token: '{{csrf_token()}}'
+                        },
+                        success: function() {
+                            $('#promoEditModal').modal('hide');
+                            // Eliminar card con animación
+                            let $card = $('.promo-card-wrapper[data-id="'+id+'"]');
+                            $card.addClass('fade-out');
+                            setTimeout(function() {
+                                $card.remove();
+                                // Actualizar contador
+                                let total = $('.promo-card-wrapper:visible').length;
+                                $('#totalPromos').text(total);
+
+                                // Si no hay promociones, mostrar mensaje
+                                if($('.promo-card-wrapper').length === 0) {
+                                    location.reload();
+                                }
+                            }, 300);
+                        },
+                        error: function() {
+                            alert('Error al eliminar la promoción');
+                        }
+                    });
+                }
+            });
+
+        ////////////////////////////////////////
 
     }
 
