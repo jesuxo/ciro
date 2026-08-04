@@ -166,7 +166,7 @@ class PromocionController extends Controller
 
             // 1. Versión para thumbnail (270x320)
             if ($originalWidth > 270 || $originalHeight > 320) {
-                $thumbnail = $image->cover(270, 320);
+                $thumbnail = $image->cover(180, 320);
                 $thumbnail->save($uploadPath . 'th' . $newName, 85);
             } else {
                 $image->save($uploadPath . 'th' . $newName, 85);
