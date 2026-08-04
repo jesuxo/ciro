@@ -1,3 +1,5 @@
+<!--views/dashboard/partials/promo_card.blade.php -->
+
 <div class="card promo-card shadow-sm hover-shadow mb-4">
     <div class="position-relative">
         <!-- Imagen con overlay de acciones -->
