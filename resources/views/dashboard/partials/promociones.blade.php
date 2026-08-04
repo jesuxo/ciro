@@ -305,10 +305,7 @@
                                             data-bs-target="#promoEditModal">
                                         <i class="bi bi-pencil"></i>
                                     </button>
-                                    <button class="btn btn-outline-danger btn-sm delete-promo-btn"
-                                            data-id="{{$promo->id}}">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+
                                 </div>
 
                                 <div class="form-check form-switch m-0">

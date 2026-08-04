@@ -53,6 +53,10 @@
                     {{$promo->activo ? 'checked' : ''}}>
             </div>
 
+            <button class="btn btn-outline-danger btn-sm delete-promo-btn"
+                    data-id="{{$promo->id}}">
+                <i class="bi bi-trash"></i>
+            </button>
         </div>
 
         <!-- Tags o características -->
