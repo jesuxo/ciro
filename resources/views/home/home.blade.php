@@ -948,7 +948,7 @@
 
     <!--onclick="activechat()"-->
 
-    <div id="app-chat-container" class="pusher-container pusher-mobile   "  >
+    <div id="app-chat-container" class="pusher-container pusher-mobile   "  style="display: none" >
         <div id="app-bot-bot" data-fromtype="bot" data-fromid="bot" data-idconversation="null" data-id-question="1" data-id-flow="null" data-id-categ="null" data-id-sector="null" class="app-chat-container-top">
             <div class="chat-launcher app-chat-launcher" onclick="activechat()"  style="display: block;">
                 <div class="chat-launcher-button">
@@ -1213,16 +1213,16 @@
         document.head.appendChild(style);
 
         $( document ).ready(function() {
-            initializeChat();
+           // initializeChat();
 
-            $('.chat-launcher-preview').show();
+           // $('.chat-launcher-preview').show();
         });
 
         function activechat(){
-            $('.app-chat-conversation').addClass('active');
+          /*  $('.app-chat-conversation').addClass('active');
             $('.chat-launcher-preview').hide();
             $('#message').select();
-            setTimeout(500,scrollToBottom());
+            setTimeout(500,scrollToBottom());*/
 
         }
 
