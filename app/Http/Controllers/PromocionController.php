@@ -18,16 +18,19 @@ class PromocionController extends Controller
         return response()->json(['view' => $vista], 200);
     }
 
-    public function limpiar()
+    public function limpiar(Request $request)
     {
         if (isset(auth()->user()->type) and auth()->user()->type == 'admin') {
-            $promos = Promocion::get();
+            $tienda = $request->tienda;
+            if(isset($tienda) and $tienda != ''){
+                $promos = Promocion::where('tienda',$tienda)->get();
 
-            if (isset($promos[0])) {
-                foreach ($promos as $promo) {
-                    if (isset($promo->id)) {
-                        $this->deleteAllImages($promo);
-                        $promo->delete();
+                if (isset($promos[0])) {
+                    foreach ($promos as $promo) {
+                        if (isset($promo->id)) {
+                            $this->deleteAllImages($promo);
+                            $promo->delete();
+                        }
                     }
                 }
             }

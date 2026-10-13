@@ -383,7 +383,7 @@
                 <a href="{{route('promos.create',['tienda'=>$tienda ?? 'SanCristobal'])}}" class="btn btn-success btn-sm">
                     <i class="bi bi-plus-circle me-1"></i> Crear
                 </a>
-                <button type="button" class="btn btn-warning btn-sm" onclick="if(confirm('¿Estás seguro de limpiar todas las promociones?')){ window.location.href='{{route('limpiar.promociones')}}' }">
+                <button type="button" class="btn btn-warning btn-sm" onclick="if(confirm('¿Estás seguro de limpiar todas las promociones?')){ window.location.href='{{route('limpiar.promociones',['tienda'=>$tienda ?? 'SanCristobal'])}}' }">
                     <i class="bi bi-trash"></i>
                 </button>
             </div>
